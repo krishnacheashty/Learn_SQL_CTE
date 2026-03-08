@@ -53,8 +53,17 @@ TotalSales,
 RANK() OVER(ORDER BY TotalSales DESC) AS CustomerRank
 FROM CTE_TOTAL_SALES
 )
--- step4 : 
-,c
+-- step4 : segment customer based on their total sales.(nested CTE)
+,CTE_Customer_Segment AS 
+(
+SELECT
+CustomerID,
+CASE WHEN TotalSales>100 THEN 'HIGH'
+	 WHEN TotalSales>60 THEN 'MEDIUM'
+	 ELSE 'LOW'
+END  CustomerSegments
+FROM CTE_TOTAL_SALES
+)
 
 --SELECT * FROM CTE_Customer_Rank
 --MAIN QUERY
@@ -65,7 +74,8 @@ C.FirstName,
 C.LastName,
 cts.TotalSales,
 clo.LAST_ORDER_DATE,
-ccr.CustomerRank
+ccr.CustomerRank,
+ccs.CustomerSegments
 FROM Sales.Customers C
 LEFT JOIN CTE_TOTAL_SALES cts
 ON cts.CustomerID=C.CustomerID
@@ -73,6 +83,8 @@ LEFT JOIN CTE_Last_order clo
 ON clo.CustomerID=C.CustomerID
 LEFT JOIN CTE_Customer_Rank ccr
 ON ccr.CustomerID=C.CustomerID
+LEFT JOIN CTE_Customer_Segment ccs
+ON ccs.CustomerID=C.CustomerID
 
 
 --							NESTED CTE 
